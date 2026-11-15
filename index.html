@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cetli</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="menubar"></div>
+      <div id="searchbar">
+        <div id="search-box">
+          <svg class="search-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 10l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <input id="search" type="text" placeholder="Search — words, @tags, &lt;Project&gt;, NOT @done" spellcheck="false" autocomplete="off" aria-label="Search" />
+          <button id="search-clear" type="button" title="Clear search (Esc)" aria-label="Clear search">×</button>
+          <button id="search-menu" type="button" title="Saved searches" aria-label="Saved searches">▾</button>
+        </div>
+        <button id="search-refresh" type="button" hidden title="The document changed: refresh the search results (F5)">↻ Refresh</button>
+      </div>
+      <div id="main">
+        <aside id="sidebar" hidden>
+          <select id="outline-mode" aria-label="Outline type">
+            <option value="projects">Projects</option>
+            <option value="tags">Tags</option>
+          </select>
+          <ul id="outline-list"></ul>
+        </aside>
+        <div id="splitter" hidden></div>
+        <section id="editor-pane">
+          <div id="tabs" hidden></div>
+          <div id="editor"></div>
+          <div id="empty-state" hidden>No lines match the search.</div>
+        </section>
+      </div>
+      <div id="statusbar">
+        <span id="status-file"></span>
+        <span id="status-info"></span>
+        <span id="status-save"></span>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

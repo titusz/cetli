@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF6D8"/>
+      <stop offset="1" stop-color="#F7E3A3"/>
+    </linearGradient>
+  </defs>
+  <rect x="96" y="96" width="832" height="832" rx="168" fill="#2F3B4C"/>
+  <path d="M232 220 h480 l88 88 v496 a36 36 0 0 1 -36 36 h-532 a36 36 0 0 1 -36 -36 v-548 a36 36 0 0 1 36 -36 z" fill="url(#paper)"/>
+  <path d="M712 220 v52 a36 36 0 0 0 36 36 h52 z" fill="#E2C46E"/>
+  <rect x="300" y="360" width="68" height="68" rx="14" fill="none" stroke="#2F3B4C" stroke-width="22"/>
+  <path d="M312 394 l26 26 l52 -62" fill="none" stroke="#D9534F" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="408" y="380" width="300" height="30" rx="15" fill="#2F3B4C" opacity="0.85"/>
+  <rect x="300" y="500" width="68" height="68" rx="14" fill="none" stroke="#2F3B4C" stroke-width="22"/>
+  <rect x="408" y="520" width="250" height="30" rx="15" fill="#2F3B4C" opacity="0.85"/>
+  <rect x="300" y="640" width="68" height="68" rx="14" fill="none" stroke="#2F3B4C" stroke-width="22"/>
+  <rect x="408" y="660" width="210" height="30" rx="15" fill="#2F3B4C" opacity="0.85"/>
+</svg>
