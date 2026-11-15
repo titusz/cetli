@@ -27,6 +27,7 @@ Archive:
 
 - **Styled plain-text editing:** projects, tasks, notes, done items (struck through), tags, links and `*bold*`.
 - **Checkboxes and fold arrows** in the margin. Click a checkbox to toggle `@done(date)`. Click an arrow to fold the project.
+  The margin turns pale yellow while a search is active.
 - **TodoPaper keyboard behaviour:**
   - `Enter` continues tasks.
   - `Enter` at the end of a project line starts its first task.

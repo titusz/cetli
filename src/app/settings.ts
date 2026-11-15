@@ -287,7 +287,6 @@ export function themeCss(theme: Theme, zoom: number, custom: CustomStyle[]): str
     `.cm-editor { background-color: ${bg}; color: ${theme.notes.color}; }`,
     `.cm-editor .cm-content { ${fontCss(theme.notes, zoom)}; caret-color: ${dark ? "#F5F5F5" : "#111111"}; }`,
     `.cm-editor .cm-cursor { border-left-color: ${dark ? "#F5F5F5" : "#111111"}; }`,
-    `.cm-editor .cm-gutters { background-color: ${bg}; }`,
     `.cm-editor .cm-activeLine { background-color: ${theme.activeLine ? theme.activeLineColor : "transparent"}; }`,
     `.cm-editor .cm-selectionBackground, .cm-editor.cm-focused .cm-selectionBackground { background-color: ${dark ? "#35608F" : "#CFE2FF"} !important; }`,
     `.cm-line.cm-tp-note { ${fontCss(theme.notes, zoom)}; }`,

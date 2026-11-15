@@ -205,7 +205,12 @@ export const visibilityField = StateField.define<Visibility>({
     }
     return changed ? compute(tr.state, query, filter, folds, stale) : vis;
   },
-  provide: (f) => [EditorView.decorations.from(f, (v) => v.deco), EditorView.atomicRanges.of((view) => view.state.field(f).deco)],
+  provide: (f) => [
+    EditorView.decorations.from(f, (v) => v.deco),
+    EditorView.atomicRanges.of((view) => view.state.field(f).deco),
+    // the margin shows that a search is active (TodoPaper colours it)
+    EditorView.editorAttributes.from(f, (v) => ({ class: v.query.trim() ? "cm-tp-filtered" : "" })),
+  ],
 });
 
 /** Get the visibility state. */

@@ -105,6 +105,7 @@ Test references:
 | Tag autocompletion after `@` (Tab/Enter) | same | e2e |
 | Ctrl+B wraps selection in `*bold*`; bold styling | same | unit |
 | Margin: checkbox toggles done; arrow folds; click on a note makes a task | same | e2e |
+| Margin look: grey strip (`#E0E0E0`) in every theme, pale yellow (`#FEF4BE`) while a search is active; square boxes, green tick | same | e2e |
 | Ctrl+click tag / project toggles it in the search; Ctrl+click link opens it | same | e2e |
 | Drop files → `file:///` links; drop text | same | e2e; desktop: real disk paths |
 | Editing a filtered view keeps edited and new lines visible; refresh button | same | unit; e2e |

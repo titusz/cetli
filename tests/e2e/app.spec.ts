@@ -97,6 +97,34 @@ test("clicking a gutter checkbox marks the task done", async ({ page }) => {
   await expect(page.locator(".cm-tp-gutter-done")).toHaveCount(4);
 });
 
+test("the margin looks like TodoPaper's: a grey strip, square boxes, a green tick, yellow while searching", async ({ page }) => {
+  const margin = page.locator(".cm-gutters");
+  await expect(margin).toHaveCSS("background-color", "rgb(224, 224, 224)");
+  await expect(margin).toHaveCSS("width", "32px");
+  const box = page.locator(".cm-tp-gutter-open").filter({ visible: true }).first();
+  await expect(box).toHaveCSS("width", "12px");
+  await expect(box).toHaveCSS("border-radius", "1px");
+  await expect(box).toHaveCSS("border-top-color", "rgb(131, 131, 131)");
+  const tick = await page.locator(".cm-tp-gutter-done").first().evaluate((el) => getComputedStyle(el, "::after").backgroundImage);
+  expect(decodeURIComponent(tick)).toContain("stroke='#8bd17f'");
+  // the strip fills the editor's height and the text starts right of it
+  const [strip, scroller, text] = await Promise.all([".cm-gutters", ".cm-scroller", ".cm-line"].map((s) => page.locator(s).first().boundingBox()));
+  expect(strip!.y + strip!.height).toBeGreaterThanOrEqual(scroller!.y + scroller!.height);
+  expect(text!.x).toBe(32);
+  // a search colours it, in every theme
+  await page.locator("#search").fill("@errand");
+  await expect(margin).toHaveCSS("background-color", "rgb(254, 244, 190)");
+  await page.locator("#search").fill("");
+  await expect(margin).toHaveCSS("background-color", "rgb(224, 224, 224)");
+  await page.evaluate(() => {
+    const app = (window as any).cetli;
+    app.settings.theme = { ...app.settings.theme, background: "#4B4B4B" };
+    app.applySettings();
+  });
+  await expect(page.locator(".cm-editor")).toHaveCSS("background-color", "rgb(75, 75, 75)");
+  await expect(margin).toHaveCSS("background-color", "rgb(224, 224, 224)");
+});
+
 test("search filters lines with their projects; Escape resets", async ({ page }) => {
   await page.locator("#search").fill("@today");
   await expect(page.locator(".cm-line")).toHaveText(["Inbox:", "- try Cetli @today", "Work:", "- call Bob about the launch @today"]);
