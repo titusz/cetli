@@ -1,6 +1,6 @@
 [package]
 name = "cetli"
-version = "0.1.0"
+# no version here: the app version lives in package.json (see tauri.conf.json)
 description = "Cetli - a snappy plain-text todo list editor (TodoPaper/TaskPaper format)"
 authors = ["Titusz Pan"]
 license = "MIT"

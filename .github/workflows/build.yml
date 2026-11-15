@@ -1,0 +1,65 @@
+# Builds the Cetli installers for Linux, macOS and Windows, starts each built app once and keeps the installers as
+# workflow artifacts. Used by the CI and Release workflows.
+name: Build
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-22.04 # the oldest supported Ubuntu, so the build also runs on older systems
+            out: src-tauri/target/release
+            exe: cetli
+            run: dbus-run-session -- xvfb-run -a # a session bus and a display, as on a desktop
+          - name: macOS
+            os: macos-latest
+            args: --target universal-apple-darwin # one app for Apple Silicon and Intel
+            out: src-tauri/target/universal-apple-darwin/release
+            exe: bundle/macos/Cetli.app/Contents/MacOS/cetli
+          - name: Windows
+            os: windows-latest
+            out: src-tauri/target/release
+            exe: cetli.exe
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - name: Add the Rust targets for a universal macOS app
+        if: runner.os == 'macOS'
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+      - name: Build the app and its installers
+        run: npx tauri build ${{ matrix.args }}
+      - name: Start the built app with a document
+        shell: bash
+        env:
+          CETLI_EXE: ${{ matrix.out }}/${{ matrix.exe }}
+          CETLI_IDENTIFIER: org.cetli.app
+        run: ${{ matrix.run }} npx playwright test -c playwright.desktop.config.ts startup
+      - name: Keep the screenshot of the started app
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: screenshot-${{ matrix.name }}
+          path: test-results/**/*.png
+          if-no-files-found: ignore
+      - name: Keep the installers
+        uses: actions/upload-artifact@v7
+        with:
+          name: cetli-${{ matrix.name }}
+          if-no-files-found: error
+          path: |
+            ${{ matrix.out }}/bundle/appimage/*.AppImage
+            ${{ matrix.out }}/bundle/deb/*.deb
+            ${{ matrix.out }}/bundle/rpm/*.rpm
+            ${{ matrix.out }}/bundle/dmg/*.dmg
+            ${{ matrix.out }}/bundle/nsis/*.exe
+            ${{ matrix.out }}/bundle/msi/*.msi

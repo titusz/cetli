@@ -5,6 +5,7 @@
  */
 
 import { Page, expect, test } from "@playwright/test";
+import { readFileSync } from "node:fs";
 
 /** Current document text. */
 async function doc(page: Page): Promise<string> {
@@ -37,13 +38,13 @@ test.beforeEach(async ({ page }) => {
 
 test("window transparency in steps of 15 (Ctrl+Shift+9 / 0 / 8)", async ({ page }) => {
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+Shift+Digit9");
-  await page.keyboard.press("Control+Shift+Digit9");
+  await page.keyboard.press("ControlOrMeta+Shift+Digit9");
+  await page.keyboard.press("ControlOrMeta+Shift+Digit9");
   await expect.poll(() => page.evaluate(() => (window as any).cetli.state.opacity)).toBe(225);
   expect(Number(await page.evaluate(() => document.documentElement.style.opacity))).toBeCloseTo(225 / 255, 4);
-  await page.keyboard.press("Control+Shift+Digit0");
+  await page.keyboard.press("ControlOrMeta+Shift+Digit0");
   await expect.poll(() => page.evaluate(() => (window as any).cetli.state.opacity)).toBe(240);
-  await page.keyboard.press("Control+Shift+Digit8");
+  await page.keyboard.press("ControlOrMeta+Shift+Digit8");
   await expect.poll(() => page.evaluate(() => (window as any).cetli.state.opacity)).toBe(255);
   expect(await page.evaluate(() => document.documentElement.style.opacity)).toBe("");
 });
@@ -82,15 +83,15 @@ test("plugins add menu items with shortcuts, run on start and react to tags", as
   await page.locator(".menu-item", { hasText: "Stamper" }).hover();
   await page.locator(".menu-item", { hasText: "Insert Stamp" }).click();
   await expect.poll(() => doc(page)).toContain("- water the plants[stamp]");
-  await page.keyboard.press("Control+Alt+j");
+  await page.keyboard.press("ControlOrMeta+Alt+j");
   await expect.poll(() => doc(page)).toContain("- water the plants[stamp][stamp]");
-  await page.keyboard.press("Control+y");
+  await page.keyboard.press("ControlOrMeta+y");
   await expect(page.locator(".cm-editor")).toHaveAttribute("data-tag-event", "@today:true:13");
 });
 
 test("the console runs JavaScript against the document", async ({ page }) => {
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+`");
+  await page.keyboard.press("ControlOrMeta+`");
   await page.locator(".console-input").fill('cetli.addToProject("- from the console", "Home"); return cetli.lineCount();');
   await page.locator(".console button").click();
   await expect(page.locator(".console-output")).toHaveText(/^\d+$/);
@@ -103,7 +104,7 @@ test("the console runs JavaScript against the document", async ({ page }) => {
 test("New Window (Ctrl+Alt+N) opens another document window", async ({ page, context }) => {
   await page.locator(".cm-content").click();
   const popup = context.waitForEvent("page");
-  await page.keyboard.press("Control+Alt+n");
+  await page.keyboard.press("ControlOrMeta+Alt+n");
   const win = await popup;
   await win.waitForLoadState();
   expect(win.url()).toContain("window=doc");
@@ -170,14 +171,18 @@ test("Page Setup is used when printing", async ({ page }) => {
   await expect.poll(() => page.locator("#page-setup").evaluate((e) => e.textContent)).toMatch(/size: landscape; margin: 25mm;/);
 });
 
-test("Help offers documentation and debug information with the error log", async ({ page }) => {
+test("Help offers documentation, About with the version, and debug information with the error log", async ({ page }) => {
   await page.evaluate(() => console.error("something went wrong in a test"));
   await page.locator(".menubar-item", { hasText: "Help" }).click();
   await page.locator(".menu-item", { hasText: "Documentation" }).click();
   await expect(page.locator(".modal h2")).toHaveText("Cetli Documentation");
   await page.locator(".modal-buttons button", { hasText: "Close" }).click();
+  await page.locator(".menubar-item", { hasText: "Help" }).click();
+  await page.locator(".menu-item", { hasText: "About Cetli" }).click();
+  await expect(page.locator(".about")).toContainText(`Cetli ${JSON.parse(readFileSync("package.json", "utf8")).version} `);
+  await page.locator(".modal-buttons button", { hasText: "OK" }).click();
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+Shift+F10");
+  await page.keyboard.press("ControlOrMeta+Shift+F10");
   await expect(page.locator(".modal h2")).toHaveText("Debug Information");
   await expect(page.locator(".debug-log")).toContainText("something went wrong in a test");
 });

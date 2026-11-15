@@ -49,7 +49,7 @@ test("autosave writes a backup copy (TodoPaper); Ctrl+S saves the file and the b
   await page.keyboard.type(" daily");
   await expect.poll(() => file(page, BACKUP), { timeout: 5000 }).toContain("- water the plants daily");
   expect(await file(page, SAMPLE)).not.toContain("daily");
-  await page.keyboard.press("Control+s");
+  await page.keyboard.press("ControlOrMeta+s");
   await expect.poll(() => file(page, SAMPLE)).toContain("- water the plants daily");
   await expect(page.locator("#status-save")).toHaveText("Saved");
   expect(await file(page, BACKUP)).toBeDefined();
@@ -70,7 +70,7 @@ test("a backup left by a crash is offered when the file is opened", async ({ pag
     web.nextOpenPath = "/demo/other.txt";
   });
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+o");
+  await page.keyboard.press("ControlOrMeta+o");
   await expect(page.locator(".modal-message")).toContainText("autosave (backup) file for this document exists");
   await page.locator(".modal-buttons button", { hasText: "Yes" }).click();
   await expect.poll(() => doc(page)).toBe("Recovered:\n- unsaved work\n");
@@ -82,7 +82,7 @@ test("closing the file removes its backup copy", async ({ page }) => {
   await cursorAfter(page, "- water the plants");
   await page.keyboard.type("!");
   await expect.poll(() => file(page, BACKUP), { timeout: 5000 }).toBeDefined();
-  await page.keyboard.press("Control+w");
+  await page.keyboard.press("ControlOrMeta+w");
   await page.locator(".modal-buttons button", { hasText: "Don't Save" }).click();
   await expect.poll(() => file(page, BACKUP)).toBeUndefined();
   expect(await file(page, SAMPLE)).not.toContain("plants!");

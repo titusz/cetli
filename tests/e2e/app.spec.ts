@@ -62,30 +62,30 @@ test("Tab and Shift+Tab indent and outdent", async ({ page }) => {
 
 test("Ctrl+D toggles @done with today's date", async ({ page }) => {
   await cursorAfter(page, "- buy milk @errand");
-  await page.keyboard.press("Control+d");
+  await page.keyboard.press("ControlOrMeta+d");
   expect(await doc(page)).toMatch(/- buy milk @errand @done\(\d{4}-\d{2}-\d{2}\)/);
-  await page.keyboard.press("Control+d");
+  await page.keyboard.press("ControlOrMeta+d");
   expect(await doc(page)).toContain("- buy milk @errand\n");
 });
 
 test("tag shortcuts: today, priority, date", async ({ page }) => {
   await cursorAfter(page, "- water the plants");
-  await page.keyboard.press("Control+y");
-  await page.keyboard.press("Control+3");
-  await page.keyboard.press("Control+u");
+  await page.keyboard.press("ControlOrMeta+y");
+  await page.keyboard.press("ControlOrMeta+3");
+  await page.keyboard.press("ControlOrMeta+u");
   expect(await doc(page)).toMatch(/- water the plants @today @priority\(3\) @date\(\d{4}-\d{2}-\d{2}\)/);
 });
 
 test("Ctrl+T, Ctrl+P and Ctrl+G create task, project and tag", async ({ page }) => {
   await cursorAfter(page, "- buy milk @errand");
-  await page.keyboard.press("Control+t");
+  await page.keyboard.press("ControlOrMeta+t");
   await page.keyboard.type("eggs");
   expect(await doc(page)).toContain("- buy milk @errand\n- eggs");
-  await page.keyboard.press("Control+p");
+  await page.keyboard.press("ControlOrMeta+p");
   await page.keyboard.type("Groceries");
   expect(await doc(page)).toContain("Groceries:\n- eggs");
   await cursorAfter(page, "- eggs");
-  await page.keyboard.press("Control+g");
+  await page.keyboard.press("ControlOrMeta+g");
   await page.keyboard.type("shop");
   await page.keyboard.press("Escape");
   expect(await doc(page)).toContain("- eggs @shop");
@@ -139,16 +139,16 @@ test("project search and NOT", async ({ page }) => {
 });
 
 test("Ctrl+click on a tag toggles it in the search", async ({ page }) => {
-  await page.keyboard.down("Control");
+  await page.keyboard.down("ControlOrMeta");
   await page.locator(".cm-tp-tag", { hasText: "@errand" }).click();
-  await page.keyboard.up("Control");
+  await page.keyboard.up("ControlOrMeta");
   await expect(page.locator("#search")).toHaveValue("@errand");
   await expect(page.locator(".cm-line")).toHaveText(["Home:", "- buy milk @errand"]);
 });
 
 test("Ctrl+H hides done tasks", async ({ page }) => {
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+h");
+  await page.keyboard.press("ControlOrMeta+h");
   await expect(page.locator("#search")).toHaveValue("NOT @done");
   await expect(page.locator(".cm-content")).not.toContainText("fix printer");
 });
@@ -175,9 +175,9 @@ test("folding a project hides its tasks; placeholder unfolds", async ({ page }) 
 
 test("collapse all and expand all", async ({ page }) => {
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+.");
+  await page.keyboard.press("ControlOrMeta+.");
   await expect(page.locator(".cm-tp-fold-placeholder")).toHaveCount(4);
-  await page.keyboard.press("Control+,");
+  await page.keyboard.press("ControlOrMeta+,");
   await expect(page.locator(".cm-tp-fold-placeholder")).toHaveCount(0);
 });
 
@@ -193,15 +193,15 @@ test("tag autocompletion after @", async ({ page }) => {
 
 test("move lines with Ctrl+Up / Ctrl+Down", async ({ page }) => {
   await cursorAfter(page, "- water the plants");
-  await page.keyboard.press("Control+ArrowUp");
+  await page.keyboard.press("ControlOrMeta+ArrowUp");
   expect(await doc(page)).toContain("Home:\n- water the plants\n- buy milk @errand");
-  await page.keyboard.press("Control+ArrowDown");
+  await page.keyboard.press("ControlOrMeta+ArrowDown");
   expect(await doc(page)).toContain("Home:\n- buy milk @errand\n- water the plants");
 });
 
 test("archive done tasks", async ({ page }) => {
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+Shift+D");
+  await page.keyboard.press("ControlOrMeta+Shift+D");
   const text = await doc(page);
   expect(text).not.toContain("- fix printer @done(2026-11-10)\n- \n");
   expect(text).toContain("Archive:\n- fix printer @done(2026-11-10) @archive(Work)\n- pay rent @done(2026-11-01) @archive(Home)\n- old task");
@@ -209,17 +209,17 @@ test("archive done tasks", async ({ page }) => {
 
 test("views keep their own search", async ({ page }) => {
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+Alt+t");
+  await page.keyboard.press("ControlOrMeta+Alt+t");
   await expect(page.locator("#tabs")).toBeVisible();
   await page.locator("#search").fill("@today");
   await page.locator("#search").press("Tab");
   await expect(page.locator(".tab.active span").first()).toHaveText("@today");
-  await page.keyboard.press("Control+Tab");
+  await page.keyboard.press("ControlOrMeta+Tab");
   await expect(page.locator("#search")).toHaveValue("");
   await expect(page.locator(".cm-content")).toContainText("buy milk");
-  await page.keyboard.press("Control+Tab");
+  await page.keyboard.press("ControlOrMeta+Tab");
   await expect(page.locator("#search")).toHaveValue("@today");
-  await page.keyboard.press("Control+w");
+  await page.keyboard.press("ControlOrMeta+w");
   await expect(page.locator("#tabs")).toBeHidden();
 });
 
@@ -249,7 +249,7 @@ test("context menu moves a line to another project", async ({ page }) => {
 
 test("quick log adds an item to the inbox", async ({ page }) => {
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+l");
+  await page.keyboard.press("ControlOrMeta+l");
   await expect(page.locator(".quicklog-text")).toBeFocused();
   await page.keyboard.type("call the dentist");
   await page.keyboard.press("Enter");
@@ -275,7 +275,7 @@ test("F1 shows the shortcut reference", async ({ page }) => {
 
 test("select hierarchy and move with children", async ({ page }) => {
   await cursorAfter(page, "Home:");
-  await page.keyboard.press("Control+Alt+ArrowUp");
+  await page.keyboard.press("ControlOrMeta+Alt+ArrowUp");
   const text = await doc(page);
   expect(text.indexOf("Home:")).toBeLessThan(text.indexOf("Work:"));
   expect(text).toContain("Home:\n- buy milk @errand\n- water the plants\n- pay rent @done(2026-11-01)\n\nWork:");
@@ -292,7 +292,7 @@ test("a search hiding the top lines keeps the first visible line styled with the
 
 test("Ctrl+F opens find and replace", async ({ page }) => {
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+f");
+  await page.keyboard.press("ControlOrMeta+f");
   await expect(page.locator(".cm-search input[name=search]")).toBeFocused();
   await page.keyboard.type("milk");
   await page.keyboard.press("Enter");
@@ -323,14 +323,14 @@ test("print renders the visible lines into the print area", async ({ page }) => 
 
 test("new document asks to save unsaved untitled changes", async ({ page }) => {
   await page.locator(".cm-content").click();
-  await page.keyboard.press("Control+n");
+  await page.keyboard.press("ControlOrMeta+n");
   await expect.poll(() => doc(page)).toBe("");
   await page.keyboard.type("Draft:");
-  await page.keyboard.press("Control+n");
+  await page.keyboard.press("ControlOrMeta+n");
   await expect(page.locator(".modal-message")).toHaveText("Save changes to Untitled?");
   await page.locator(".modal-buttons button", { hasText: "Cancel" }).click();
   expect(await doc(page)).toBe("Draft:");
-  await page.keyboard.press("Control+n");
+  await page.keyboard.press("ControlOrMeta+n");
   await page.locator(".modal-buttons button", { hasText: "Don't Save" }).click();
   await expect.poll(() => doc(page)).toBe("");
 });

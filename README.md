@@ -1,5 +1,7 @@
 # Cetli
 
+[![CI](https://github.com/titusz/cetli/actions/workflows/ci.yml/badge.svg)](https://github.com/titusz/cetli/actions/workflows/ci.yml)
+
 **Cetli** is a snappy, cross-platform, open source todo list editor for plain text files. It reimplements (and slightly
 improves) the much-loved but abandoned **TodoPaper** desktop app by Widefido, using the same TaskPaper file format.
 
@@ -22,6 +24,21 @@ Archive:
 - A line starting with `- ` is a **task**.
 - Any other line is a **note**.
 - `@tag` and `@tag(value)` are **tags**. `@done` marks an item as finished.
+
+## Install
+
+Download Cetli from the [latest release](https://github.com/titusz/cetli/releases/latest):
+
+| System | File |
+|---|---|
+| Windows | `Cetli_…_x64-setup.exe` (or the `.msi`) |
+| macOS, Apple Silicon and Intel | `Cetli_…_universal.dmg` |
+| Linux | `.AppImage`, `.deb` or `.rpm` (built on Ubuntu 22.04) |
+
+The installers are not code-signed, so Windows and macOS ask before the first start:
+
+- **Windows:** choose "More info", then "Run anyway".
+- **macOS:** open Cetli once, then allow it with "Open Anyway" in System Settings › Privacy & Security.
 
 ## Features
 
@@ -114,8 +131,8 @@ Two opt-in preferences offer modern alternatives:
 Cetli also has a few additions. TodoPaper's own behaviour is unchanged by them:
 
 - It opens Windows-1252 files, which TodoPaper refused; they are saved as UTF-8 like every TodoPaper file.
-- It also runs on macOS and Linux (TodoPaper was Windows-only). There, line endings are kept as found and window
-  transparency is not available.
+- It also runs on macOS and Linux (TodoPaper was Windows-only). There, line endings are kept as found, and window
+  transparency and spell checking are not available.
 
 Plugins need one extra step. TodoPaper ran plugins and its console in its own embedded Python 2.5. Cetli runs them in
 the Python installed on the computer:
@@ -151,16 +168,34 @@ npm run dev          # run the UI in a plain browser (in-memory sample file) on 
 
 ```sh
 npm test                                   # unit tests (parser, outline, search, commands, settings, Python plugins with the installed Python)
-npx playwright test                        # end-to-end tests of the UI in a browser (uses installed Edge; PW_CHANNEL=chrome to switch)
+npx playwright test                        # end-to-end tests of the UI in both webview engines: Chromium (installed Edge; PW_CHANNEL=chrome
+                                           # to switch) and WebKit (once: npx playwright install webkit)
 cargo test --manifest-path src-tauri/Cargo.toml   # Rust: file encoding round trips, hotkey parsing, Python bridge
 npx tauri build --debug --no-bundle --config src-tauri/tauri.dev.conf.json && npx playwright test -c playwright.desktop.config.ts
                                            # Windows: drives the real desktop app (disk I/O, quick log, global hotkey, real keystrokes)
+                                           # every system: add "startup" to only start the app with a document
 ```
+
+Every push runs the [CI workflow](.github/workflows/ci.yml) on Linux, macOS and Windows. It runs the unit, browser and
+Rust tests, builds the installers, and starts each built app once with a document. The installers and a screenshot of
+the started app are attached to the workflow run.
 
 Set `CETLI_REAL_FILE=/path/to/todo.txt` to also run read-only checks against a real document: the performance test
 (`npm test`) and, after the dev build above, `npx playwright test -c playwright.desktop.config.ts realfile`. That one
 opens it in the isolated dev build with your TodoPaper settings imported, verifies a byte-identical round trip through Cetli's
 writer into a temporary copy, and asserts that the document itself is untouched.
+
+## Releasing
+
+The version lives in `package.json` only.
+
+```sh
+npm version 0.2.0        # sets the version, commits and tags v0.2.0 (also: patch, minor, major)
+git push --follow-tags   # the Release workflow builds the installers into a draft GitHub release
+```
+
+Publish the draft on GitHub once it looks right. The [Release workflow](.github/workflows/release.yml) can also be
+started from the Actions tab; it then drafts a release of the current version.
 
 ## Project structure
 
@@ -171,7 +206,8 @@ src/app/        application shell: controller, actions and menus, preferences, q
 src/platform/   host abstraction: Tauri desktop implementation and an in-memory browser implementation
 src-tauri/      Rust shell: file I/O preserving encodings, config, TodoPaper import, windows, tray, Windows hotkeys/transparency/file drops,
                 Python plugin host (src/python.rs runs src/python/cetli_bridge.py)
-tests/          unit (Vitest), e2e (Playwright, browser) and desktop (Playwright over WebView2 CDP) tests
+tests/          unit (Vitest), e2e (Playwright, browser) and desktop (Playwright over WebView2 CDP; start-up check) tests
+.github/        CI and Release workflows
 ```
 
 ## License

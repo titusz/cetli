@@ -1,0 +1,55 @@
+# Builds the installers of a version and attaches them to a draft GitHub release, which is then published by hand.
+# Runs when a version tag is pushed (`npm version 0.2.0 && git push --follow-tags`) or when started from the Actions
+# tab, which drafts a release of the version in package.json (its tag is created when the draft is published).
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Read the version and compare it with the tag
+        id: read
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::The tag $GITHUB_REF_NAME does not match version $version in package.json"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: version
+    uses: ./.github/workflows/build.yml
+
+  publish:
+    name: Draft release
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: cetli-*
+          path: installers
+          merge-multiple: true
+      - name: Create the draft release with the installers
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          find installers -type f -print0 | xargs -0 gh release create "v$VERSION" \
+            --draft --target "$GITHUB_SHA" --title "Cetli $VERSION" --generate-notes

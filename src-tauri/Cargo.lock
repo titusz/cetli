@@ -444,7 +444,7 @@ checksum = "6d43a04d8753f35258c91f8ec639f792891f748a1edbd759cf1dcea3382ad83c"
 
 [[package]]
 name = "cetli"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "encoding_rs",
  "serde",

@@ -1,0 +1,47 @@
+# Tests Cetli on Linux, macOS and Windows and builds its installers, for every push to main and every pull request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-latest
+          - name: macOS
+            os: macos-latest
+          - name: Windows
+            os: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - name: Type check and build the UI
+        run: npm run build
+      - name: Unit tests
+        run: npm test
+      - name: Install the test browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Browser tests (Chromium and WebKit)
+        run: npx playwright test
+        env:
+          PW_CHANNEL: chromium
+      - name: Rust tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml
+
+  build:
+    uses: ./.github/workflows/build.yml

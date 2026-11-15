@@ -1,5 +1,6 @@
 /** Help dialogs: keyboard shortcut reference and About. */
 
+import { version } from "../../package.json";
 import type { App } from "./app";
 import { runningPython } from "./python";
 import { ACTIONS } from "./actions";
@@ -64,7 +65,7 @@ export function showAbout(): void {
   const body = document.createElement("div");
   body.className = "about";
   body.innerHTML = `
-    <p><strong>Cetli</strong> 0.1.0 — plain-text todo lists.</p>
+    <p><strong>Cetli</strong> ${version} — plain-text todo lists.</p>
     <p>A free, open source, cross-platform reimplementation of the much-loved
     <em>TodoPaper</em> desktop app by Widefido, using the TaskPaper file format.</p>
     <p>"Cetli" is Hungarian for a slip of paper.</p>
