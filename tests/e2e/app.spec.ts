@@ -125,6 +125,40 @@ test("the margin looks like TodoPaper's: a grey strip, square boxes, a green tic
   await expect(margin).toHaveCSS("background-color", "rgb(224, 224, 224)");
 });
 
+test("a selection made with the mouse shows on the line the cursor is in, in a light and a dark theme", async ({ page }) => {
+  const word = await page.evaluate(() => {
+    const view = (window as any).cetli.view;
+    const at = view.state.doc.toString().indexOf("try Cetli");
+    const from = view.coordsAtPos(at);
+    return { from: from.left, to: view.coordsAtPos(at + 9).left, top: from.top, bottom: from.bottom };
+  });
+  const y = (word.top + word.bottom) / 2;
+  // the inside of the word, clear of the caret at either end
+  const clip = { x: Math.round(word.from) + 4, y: Math.round(word.top), width: Math.round(word.to - word.from) - 8, height: Math.round(word.bottom - word.top) };
+  const themes = { light: {}, dark: { background: "#4B4B4B", activeLineColor: "#3C3C3C" } };
+  for (const [theme, colours] of Object.entries(themes)) {
+    await page.evaluate((colours) => {
+      const app = (window as any).cetli;
+      app.settings.theme = { ...app.settings.theme, ...colours };
+      app.applySettings();
+    }, colours);
+    await page.mouse.click(word.to, y);
+    await expect(page.locator(".cm-activeLine")).toHaveText("- try Cetli @today");
+    const unselected = await page.screenshot({ clip });
+    await page.mouse.move(word.from + 1, y);
+    await page.mouse.down();
+    await page.mouse.move(word.to, y, { steps: 5 });
+    await page.mouse.up();
+    const selected = await page.evaluate(() => {
+      const view = (window as any).cetli.view;
+      const range = view.state.selection.main;
+      return view.state.sliceDoc(range.from, range.to);
+    });
+    expect(selected, theme).toBe("try Cetli");
+    expect((await page.screenshot({ clip })).equals(unselected), `${theme}: the selection is painted`).toBe(false);
+  }
+});
+
 test("search filters lines with their projects; Escape resets", async ({ page }) => {
   await page.locator("#search").fill("@today");
   await expect(page.locator(".cm-line")).toHaveText(["Inbox:", "- try Cetli @today", "Work:", "- call Bob about the launch @today"]);

@@ -394,6 +394,12 @@ body {
   padding: 0 16px 0 4px;
 }
 
+/* the selection is a translucent tint above the text, so that no line, project or tag background covers it */
+.cm-editor .cm-selectionLayer {
+  z-index: 1 !important;
+  pointer-events: none;
+}
+
 /* TodoPaper's margin: a light grey strip in every theme, pale yellow while a search is active */
 .cm-editor .cm-gutters {
   border-right: 0;

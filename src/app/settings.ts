@@ -288,7 +288,7 @@ export function themeCss(theme: Theme, zoom: number, custom: CustomStyle[]): str
     `.cm-editor .cm-content { ${fontCss(theme.notes, zoom)}; caret-color: ${dark ? "#F5F5F5" : "#111111"}; }`,
     `.cm-editor .cm-cursor { border-left-color: ${dark ? "#F5F5F5" : "#111111"}; }`,
     `.cm-editor .cm-activeLine { background-color: ${theme.activeLine ? theme.activeLineColor : "transparent"}; }`,
-    `.cm-editor .cm-selectionBackground, .cm-editor.cm-focused .cm-selectionBackground { background-color: ${dark ? "#35608F" : "#CFE2FF"} !important; }`,
+    `.cm-editor .cm-selectionBackground, .cm-editor.cm-focused .cm-selectionBackground { background-color: ${dark ? "rgba(80, 160, 255, 0.4)" : "rgba(63, 139, 255, 0.25)"} !important; }`,
     `.cm-line.cm-tp-note { ${fontCss(theme.notes, zoom)}; }`,
     `.cm-line.cm-tp-task { ${fontCss(theme.tasks, zoom)}; }`,
     `.cm-line.cm-tp-project { ${fontCss(theme.projects, zoom)}; background-color: ${projectBg}; }`,
