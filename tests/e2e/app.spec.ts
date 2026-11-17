@@ -142,13 +142,16 @@ test("a selection made with the mouse shows on the line the cursor is in, in a l
       app.settings.theme = { ...app.settings.theme, ...colours };
       app.applySettings();
     }, colours);
-    await page.mouse.click(word.to, y);
+    // the cursor in the line, and no selection left on screen
+    await cursorAfter(page, "- try Cetli @today");
+    await expect(page.locator(".cm-selectionBackground")).toHaveCount(0);
     await expect(page.locator(".cm-activeLine")).toHaveText("- try Cetli @today");
     const unselected = await page.screenshot({ clip });
     await page.mouse.move(word.from + 1, y);
     await page.mouse.down();
     await page.mouse.move(word.to, y, { steps: 5 });
     await page.mouse.up();
+    await expect(page.locator(".cm-selectionBackground")).toHaveCount(1);
     const selected = await page.evaluate(() => {
       const view = (window as any).cetli.view;
       const range = view.state.selection.main;
